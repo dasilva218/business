@@ -12,7 +12,21 @@ class Candidat extends CI_Controller
     // la fonction qui réupere les donnees du formulaire
     public function traitement_enregistrement()
     {
-        // On récupère les infos du formulaire
+        // validation des informations
+        $this->form_validation->set_rules('nom', 'Nom', 'trim|required|min_length[3]');
+        //$this->form_validation->set_rules('prenom', 'Nom', 'trim|required|');
+        //$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+        // validation du formulaire
+        if ($this->form_validation->run()) {
+            // On récupère les infos du formulaire
+            
+        }else{
+            
+        }
+         
+        die();
+
+
         $nom         = $this->input->post('nom');
         $prenom      = $this->input->post('prenom');
         $sexe        = $this->input->post('sexe');
@@ -25,9 +39,8 @@ class Candidat extends CI_Controller
         $type_serv   = $this->input->post('service');
         $attentes    = $this->input->post('attentes');
 
-        // On valide les informations
-
         // On crée un candidat
+
         $candidat = new Candidat_model();
 
         $candidat->nom_prenom  = $nom . ' ' . $prenom;
@@ -44,6 +57,8 @@ class Candidat extends CI_Controller
         // On enregistre le candidat dans la base de données
         $succes = $candidat->s_enregistrer();
 
+        
+
         // On le redirige en fonction du résultat de la requete
         if ($succes) {
             $message = "Bonjour " . ($sexe = 'M' ? 'M.' : 'Mme.') . " " . $candidat->nom_prenom . ", \n\nNous avons bien recu votre inscrion au programme de formation Ecole 241 Business destiné aux commerçants et artisants.
@@ -56,6 +71,7 @@ class Candidat extends CI_Controller
         } else {
             redirect('candidat');
         }
+
     }
 
     public function inscription_reussi()
