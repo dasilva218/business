@@ -330,7 +330,7 @@ class Commercial extends CI_Controller
 
         $commercial = $this->commercial_model->par_email($this->session->userdata('email_com'));
 
-        $montant = $this->input->post('montant');
+        (int)$montant = $this->input->post('montant');
         $numero = $this->input->post('numero');
 
         // Nombre d'affiliés en présentiel du commercial
@@ -354,8 +354,21 @@ class Commercial extends CI_Controller
 
         // Solde du commercial
         $solde = $commission - $retrait;
+        // Filtre sur les retraits du candidat
+        $com_retrait = $this->retrait_model->demande_retraits_commercial($commercial->id_com);
 
-        if ($solde < $montant) {
+        $transaction = array_filter($com_retrait, function ($retrait) {
+            return $retrait->id_gest == null && $retrait->date_fin == null && $retrait->montant_retrait;
+        });
+        // Traite chaque retrait
+        $retrait_detail  = array_map(function ($retrait) {
+            return $retrait->montant_retrait;
+        }, $transaction);
+        // Somme sur le total des retraits
+        $sum_retrait = array_sum($retrait_detail);
+
+
+        if ($solde < $montant || $solde <= $sum_retrait) {
             $this->session->set_flashdata('message', "Votre solde est insuffisant");
             redirect('commercial');
         } else {
